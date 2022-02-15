@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	
+	<http:listener-config name="api-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}"/>
+    </http:listener-config>
+	
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="e6edff4c-4373-4fd3-bcc5-c413151ac262" >
+		<db:my-sql-connection host="${secure::database.host}" port="${secure::database.port}" user="${secure::database.username}" password="${secure::database.password}" database="${secure::database.databaseName}" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="b8987c75-465b-409a-a1de-4fbf0702dbda" file="config.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="36b1b0f6-0ef3-486f-9fe8-d64c9049b1c0" file="config.yaml" key="Password12345678" />
+	<error-handler name="globalError_Handler" doc:id="2104a0e4-054b-4098-bd9b-f79d94d41bef" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d89769d8-277d-45d3-861c-44aaa23a243e" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="8acea36a-25f7-41cc-a35e-1a71541669d6" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "an error occurred"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-continue>
+	</error-handler>
+</mule>
+	
